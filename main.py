@@ -6,14 +6,7 @@ import mysql.connector as mysql
 
 conn = mysql.connect(user="root", password="root", host='localhost', database='survey')
 c = conn.cursor()
-print(conn)
-
-'''
-import pathlib
-import time
-import csv
-import os.path
-'''
+#print(conn)
 
 questions = [
     "1.	What is your position within the company?",
@@ -62,8 +55,6 @@ def validate(name, age, gender, email):
     elif 'gmail.com' not in email_text:
         messagebox.showerror(title="No Value ", message="PLEASE ENTER YOUR EMAIL")
     else:
-        c.execute(f"insert into survey.user_info_answers values('{name_text}','{age}','{gender_text}','{email_text}');")
-        conn.commit()
         survey_page()
 
 
@@ -105,7 +96,7 @@ l1, r1, r2, r3 = None, None, None, None
 
 
 def question_show():
-    global radiovar, user_answers
+    global user_answers
     global l1, r1, r2, r3
     l1 = Label(
         win,
@@ -118,30 +109,29 @@ def question_show():
     )
     l1.pack()
 
-    radiovar = IntVar()
-    radiovar.set(-1)
+
     r1 = Radiobutton(
         win,
         text=answers_choice[0][0],
         value=0,
-        variable=radiovar,
+        variable=var1
 
     )
-    #print(r1.__dir__())
     r1.pack()
 
     r2 = Radiobutton(
         win,
         text=answers_choice[0][1],
         value=1,
-        variable=radiovar,
+        variable=var1
     )
     r2.pack()
+
     r3 = Radiobutton(
         win,
         text=answers_choice[0][2],
         value=2,
-        variable=radiovar,
+        variable=var1
 
     )
     r3.pack()
@@ -149,9 +139,7 @@ def question_show():
 
 def button_select():
     global radiovar, user_answers
-    x = radiovar.get()
-    user_answers.append(x)
-    #print(user_answers)
+    user_answers.append(var1.get())
     d = 1
 
     if len(gee) == 0:
@@ -162,8 +150,10 @@ def button_select():
         r3['text'] = answers_choice[gee[0]][2]
     else:
         if gee[0] == 5:
-            print(indexes)
+            #print(indexes)
+            print(gee)
             print(user_answers)
+            thankyou_page()
 
 
         else:
@@ -181,7 +171,7 @@ win.geometry("750x600")
 win.maxsize(750, 600)
 win.minsize(750, 600)
 win.config(background="#ffc14b")
-
+var1 = IntVar()
 
 def user_page():
     name = StringVar()
@@ -202,6 +192,18 @@ def user_page():
     Button(win, text="Submit", command=lambda: validate(name, e1, gender, email), width=12).place(x=250, y=300)
     Button(win, text='Close', command=lambda: win.destroy(), width=13).place(x=400, y=300)
     win.mainloop()
+
+def thankyou_page():
+    #create page and delete all widgets then add a label saying thankyou
+    for i in win.winfo_children():
+        i.destroy()
+
+    c.execute(f"insert  into user_info_answers values('{name_text}','{age}','{gender_text}','{email_text}','{user_answers[0]} {user_answers[1]} {user_answers[2]} {user_answers[3]} {user_answers[4]}')")
+    conn.commit()
+    
+    Label(win, text="THANK YOU FOR YOUR RESPONSE", font="Helvetica  20", background="#ffc14b").place(x=450 / 2, y=40 / 2)
+    Button(win, text='Close', command=lambda: win.destroy(), width=13).place(x=400, y=300)
+
 
 
 user_page()
